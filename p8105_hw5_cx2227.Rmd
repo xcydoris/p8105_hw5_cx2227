@@ -130,9 +130,31 @@ bind_rows(sim_results_beta1_0, sim_results_beta1_1, sim_results_beta1_2, sim_res
   
   ggplot(aes(x = beta, y = proportion)) +
   geom_bar(stat = "identity")+
+  scale_x_discrete(limits=c("1","2","3","4","5","6"))+
   geom_text(aes(label=proportion))
 
 ```
 
  - From the bar chart, we can see that as the effect size grows, more and more false null hypothesis got rejected.
  
+```{r}
+reject_summary = bind_rows(sim_results_beta1_0, sim_results_beta1_1, sim_results_beta1_2, sim_results_beta1_3, sim_results_beta1_4, sim_results_beta1_5, sim_results_beta1_6) %>% 
+  filter(p_value < 0.05) %>% 
+  group_by(beta) %>% 
+  summarize(avg_beta1 = mean(beta1_hat))
+
+reject_summary %>%   
+ggplot(aes(x = beta, y = avg_beta1)) + 
+  geom_point(data = reject_summary)
+
+
+bind_rows(sim_results_beta1_0, sim_results_beta1_1, sim_results_beta1_2, sim_results_beta1_3, sim_results_beta1_4, sim_results_beta1_5, sim_results_beta1_6) %>% 
+  group_by(beta) %>% 
+  summarize(avg_beta1 = mean(beta1_hat)) %>% 
+  
+  ggplot(aes(x = beta, y = avg_beta1)) + 
+  geom_point()
+```
+
+ - Is the sample average of β̂ 1 across tests for which the null is rejected approximately equal to the true value of β1? Why or why not?
+ - The sample average of β̂ 1 across tests for which the null is rejected is not approximately equal to the true value. Because larger the effective size, more false null hypothesis got rejected. These rejected beta have p-value less than 0.05 will not be a good estimator of the ture value.
