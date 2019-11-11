@@ -33,8 +33,34 @@ replace_missing_values = function(vec) {
 ```
 
 ```{r}
-map(iris_with_missing, replace_missing_values)
+iris_with_missing %>%
+  map_df(~replace_missing_values(.x)) %>%
+  knitr::kable()
 ```
 
 ## Problem 2
 
+```{r}
+tibble(list.files(path = "./data")) %>% 
+  rename(arm_id = `list.files(path = "./data")`) %>% 
+  mutate(list1 = "./data/", list2 = str_c(list1, arm_id) ,data = map(list2, read.csv)) %>% 
+  unnest() %>% 
+  
+  pivot_longer(
+    cols = starts_with("week"),
+    names_to = "week",
+    names_prefix = "week_",
+    values_to = "data"
+    ) %>% 
+  subset.data.frame(select = c("arm_id","week","data")) %>% 
+  
+  ggplot(aes(x = week, y = data, group = arm_id, color = arm_id)) +
+  geom_path() +
+  labs(
+    title = "Observations of two arms of participants over 8 weeks",
+    x = "Week", 
+    y = "Value"
+    ) 
+```
+
+ - From the plot, we can see that generally, experiment group had a larger value than the control group. And the experiment group experienced a significant growth during the 8 weeks when control group stayed mostly the same level as they started.
